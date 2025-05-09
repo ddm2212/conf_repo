@@ -1,0 +1,38 @@
+#!/bin/bash
+yum update -y
+yum install ansible* -y 
+hostnamectl set-hostname ansible.example.com
+timedatectl set-timezone Asia/Kolkata
+useradd itadmin
+echo 111 | passwd --stdin itadmin
+echo 111 | passwd --stdin root
+echo "itadmin	ALL=(ALL)    NOPASSWD: ALL" >>/etc/sudoers
+echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+sed 's/PasswordAuthentication no/PasswordAuthentication yes/'  -i /etc/ssh/sshd_config
+systemctl enable sshd
+systemctl restart sshd
+
+mkdir /home/itadmin/punepro
+echo "[defaults]" >>/home/itadmin/punepro/ansible.cfg
+echo "remote_user=itadmin" >>/home/itadmin/punepro/punepro
+echo "host_key_checking=false" >>/home/itadmin/punepro/ansible.cfg
+echo "inventory=/home/itadmin/punepro/invy" >> /home/itadmin/punepro/ansible.cfg
+echo "interpreter_python= auto_silent" >>/home/itadmin/punepro/ansible.cfg
+echo "privilege_escalation]" >>/home/itadmin/punepro/ansible.cfg
+echo "become=yes" >> /home/itadmin/punepro/ansible.cfg
+echo "become_user=root" >>/home/itadmin/punepro/ansible.cfg
+echo "become_method=sudo" >>/home/itadmin/punepro/ansible.cfg
+echo "become_ask_pass=false" >>/home/itadmin/punepro/ansible.cfg
+echo "[web]" >> /home/itadmin/punepro/invy
+echo "node1" >> /home/itadmin/punepro/invy
+echo "node2" >> /home/itadmin/punepro/invy
+echo "node3" >> /home/itadmin/punepro/invy
+echo "[web:vars]" >> /home/itadmin/punepro/invy
+echo "ansible_port=22" >> /home/itadmin/punepro/invy
+echo "ansible_user=itadmin" >> /home/itadmin/punepro/invy
+echo "anaible_password=111" >> /home/itadmin/punepro/invy
+
+chown -R itadmin:itadmin /home/itadmin/punepro
+echo "<<ip_add>> node1" >>/etc/hosts
+echo "<<ip_add>> node2" >>/etc/hosts
+echo "<<ip_add>> node3" >>/etc/hosts
